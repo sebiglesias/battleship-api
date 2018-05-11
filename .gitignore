@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+package-lock.json
+battleship-api.iml
+/node_modules
+/.idea
+src/index.html

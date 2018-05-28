@@ -6,6 +6,7 @@ class Game {
         this.playerA = playerA;
         this.playerB = playerB;
         this.id = this.createId();
+        console.log('juego creado:' + playerA);
     }
 
 
@@ -13,3 +14,5 @@ class Game {
         return uuid();
     }
 }
+
+module.exports = Game;

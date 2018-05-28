@@ -1,59 +1,51 @@
-const AWS = require("aws-sdk");
-const awsRegion = "us-east-2";
-AWS.config.update({
-    region: awsRegion
-});
+const dao = require('./dao.js');
 const uuid = require("uuid/v5");
-const userTable = "battleship-users";
-const docClient = new AWS.DynamoDB.DocumentClient();
+const userTable = 'battleship-users';
 
-
-exports.getUser = function (id, callback) {
+function getUser(id, callback) {
     let params = {
         TableName: userTable,
         Key: {
             "id": createId(id)
         }
     };
-
-    console.log(params);
-    docClient.get(params, function (err, data) {
-        console.log(err);
-        console.log(data);
+    dao.get(params, function (err, data) {
         if (err) {
-            console.log('Error, user not exist');
-            // callback(err);
+            console.log('Error to get user');
         } else {
-            console.log(data.Item.id);
-            // callback(data.Item.id);
+            callback(data);
         }
     });
-};
+}
 
-exports.newUser = function (id, name) {
+function newUser(id, callback) {
     const newUser = {
-        Item: {
-            "id": createId(id),
-            "name": name
-        },
         TableName: userTable,
         Key: {
             "id": createId(id)
+        },
+        Item: {
+            'id': createId(id),
+            'win': 0,
+            'lost': 0,
+            'totalShoots': 0,
+            'hits': 0,
+            'games': []
         }
     };
 
-    // Put the new Article in the database
-    docClient.put(newUser, function (err, data) {
+    dao.post(newUser, function (err, data) {
         if (err) {
             console.log('Error to create user');
         } else {
             console.log('User created');
-            console.log(data);
+            console.log(newUser.Item);
+            callback(newUser.Item);
         }
     });
-};
+}
 
-exports.deleteUser = function (id) {
+function deleteUser(id) {
     const user = {
         TableName: userTable,
         Key: {
@@ -69,10 +61,13 @@ exports.deleteUser = function (id) {
             console.log('User deleted');
         }
     });
-};
+}
 
 
 function createId(facebookId) {
     const ID = '1b671a64-40d5-491e-99b0-da01ff1f3341';
     return uuid(facebookId, ID);
 }
+
+module.exports.getUser = getUser;
+module.exports.newUser = newUser;

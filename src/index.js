@@ -17,6 +17,7 @@ io.on('connection', function (socket) {
     console.log('user connected: ' + socket.id);
 
     socket.on('login', function (msg) {
+        console.log(msg);
         dao.getUser(msg, function (res) {
             if (isEmpty(res)) {
                 dao.newUser(msg, function (newUser) {
@@ -48,7 +49,12 @@ io.on('connection', function (socket) {
         } else {
             console.log('Other Player');
             let playerA = players.pop();
-            let game = { playerA: playerA.userId, playerB: playerId};
+            let playerB = {
+                socketId: socket.id,
+                userId: playerId
+            };
+            let game = new Game(playerA, playerB);
+            games.push(game);
             io.to(socket.id).emit('newGame', game);
             io.to(playerA.socketId).emit('newGame', game);
         }
@@ -63,6 +69,18 @@ io.on('connection', function (socket) {
             }
         }
     });
+
+    socket.on('startGame', function (boards) {
+        console.log(boards);
+    });
+
+
+    socket.on('move', function (move) {
+
+    });
+
+
+    // socket.emit('moveRes')
 
     socket.on('disconnect', function (socket) {
         for(let i=0; i < users.length; i++){

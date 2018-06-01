@@ -1,4 +1,5 @@
 const uuid = require("uuid/v4");
+const Board = require('./Board.js');
 
 class Game {
 
@@ -6,7 +7,6 @@ class Game {
         this.playerA = playerA;
         this.playerB = playerB;
         this.id = this.createId();
-        console.log('juego creado:' + playerA);
     }
 
 

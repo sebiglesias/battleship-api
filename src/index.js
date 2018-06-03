@@ -1,4 +1,6 @@
 const Game = require('./game.js');
+const Board = require('./board.js');
+const Move = require('./move.js');
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -54,7 +56,7 @@ io.on('connection', function (socket) {
                 userId: playerId
             };
             let game = new Game(playerA, playerB);
-            games.push(game);
+            games.push(game.toString());
             io.to(socket.id).emit('newGame', game);
             io.to(playerA.socketId).emit('newGame', game);
         }
@@ -63,15 +65,24 @@ io.on('connection', function (socket) {
 
     socket.on('cancelPlay', function () {
         for (let i = 0; i < players.length; i++) {
-            if(players[i].socketId === socket.id){
-                players.splice(i,1);
+            if (players[i].socketId === socket.id) {
+                players.splice(i, 1);
                 io.to(socket.id).emit('canceledGame', 'Canceled game.');
             }
         }
     });
 
     socket.on('startGame', function (boards) {
-        console.log(boards);
+        const game = getGame(boards.gameId);
+        setInitialConfiguration(game, boards);
+        console.log(game);
+        if(game.playerAboard === undefined || game.playerBboard === undefined){
+            games.push(game);
+        } else {
+            games.push(game);
+            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerAboard, game.boardAopponent));
+            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.userId, game.playerBboard, game.boardBopponent));
+        }
     });
 
 
@@ -83,11 +94,15 @@ io.on('connection', function (socket) {
     // socket.emit('moveRes')
 
     socket.on('disconnect', function (socket) {
-        for(let i=0; i < users.length; i++){
-            if(users[i].id === socket.id){
-                users.splice(i,1);
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].id === socket.id) {
+                users.splice(i, 1);
             }
         }
+    });
+
+    socket.on('reconnect', function (gameId) {
+
     });
 });
 
@@ -104,4 +119,25 @@ function isEmpty(obj) {
     }
 
     return JSON.stringify(obj) === JSON.stringify({});
+}
+
+function getGame(gameId) {
+    for (let i = 0; i < games.length; i++) {
+        if(games[i].gameId === gameId){
+            return games.splice(i,1).pop();
+        }
+    }
+}
+
+function setInitialConfiguration(game, board) {
+    const newBoard = new Board(board.playerId, board.boardCells, board.totalShipCells, board.shipList);
+    if(game.playerA.userId === board.playerId){
+        game.playerAboard = newBoard
+    } else { game.playerBboard = newBoard}
+}
+
+function updateSocketId(game, userId, socketId){
+    if(game.playerA.userId === userId){
+        game.playerA.socketId = socketId
+    } else {game.playerB.socketId = socketId}
 }

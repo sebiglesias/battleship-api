@@ -56,7 +56,7 @@ io.on('connection', function (socket) {
                 userId: playerId
             };
             let game = new Game(playerA, playerB);
-            games.push(game.toString());
+            games.push(game);
             io.to(socket.id).emit('newGame', game);
             io.to(playerA.socketId).emit('newGame', game);
         }
@@ -73,13 +73,17 @@ io.on('connection', function (socket) {
     });
 
     socket.on('startGame', function (boards) {
+        console.log('llegue startgame');
         const game = getGame(boards.gameId);
         setInitialConfiguration(game, boards);
-        console.log(game);
         if(game.playerAboard === undefined || game.playerBboard === undefined){
+            console.log('player1');
+            console.log(game);
             games.push(game);
         } else {
             games.push(game);
+            console.log('player2');
+            console.log(game);
             io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerAboard, game.boardAopponent));
             io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.userId, game.playerBboard, game.boardBopponent));
         }
@@ -131,6 +135,7 @@ function getGame(gameId) {
 
 function setInitialConfiguration(game, board) {
     const newBoard = new Board(board.playerId, board.boardCells, board.totalShipCells, board.shipList);
+
     if(game.playerA.userId === board.playerId){
         game.playerAboard = newBoard
     } else { game.playerBboard = newBoard}

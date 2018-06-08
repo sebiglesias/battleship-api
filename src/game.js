@@ -28,13 +28,11 @@ class Game {
         let row = [];
         for (let i = 0; i < 13; i++) {
             for (let j = 0; j < 13; j++) {
-                console.log(i + ' ' + j);
                 row[j] = new Cell(i, j, false)
             }
             array[i] = row;
             row = [];
         }
-        console.log(array);
         return array;
     }
 

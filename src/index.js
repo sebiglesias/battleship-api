@@ -85,7 +85,7 @@ io.on('connection', function (socket) {
             console.log('player2');
             console.log(game);
             io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerAboard, game.boardAopponent));
-            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.userId, game.playerBboard, game.boardBopponent));
+            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerBboard, game.boardBopponent));
         }
     });
 
@@ -105,8 +105,12 @@ io.on('connection', function (socket) {
         }
     });
 
-    socket.on('reconnect', function (gameId) {
-
+    socket.on('reconnect', function (player) {
+        // for(let i = 0; i < games.length; i++){
+        //     if(game[i].gameId === player.gameId){
+        //
+        //     }
+        // }
     });
 });
 

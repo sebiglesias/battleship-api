@@ -77,21 +77,35 @@ io.on('connection', function (socket) {
         const game = getGame(boards.gameId);
         setInitialConfiguration(game, boards);
         if(game.playerAboard === undefined || game.playerBboard === undefined){
-            console.log('player1');
-            console.log(game);
             games.push(game);
         } else {
             games.push(game);
-            console.log('player2');
-            console.log(game);
-            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerAboard, game.boardAopponent));
-            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerBboard, game.boardBopponent));
+            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerAboard, game.boardAopponent, undefined));
+            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerA.userId, game.playerBboard, game.boardBopponent, undefined));
         }
     });
 
 
     socket.on('move', function (move) {
+        const game = getGame(move.gameId);
+        game.shot(move.row, move.column, move.userID);
 
+
+
+        let nextPlayer = undefined;
+        if(move.userID === game.playerA.userId){
+            nextPlayer = game.playerB.userId;
+        }else{
+            nextPlayer = game.playerA.userId;
+        }
+
+        const winner = game.winner();
+
+        games.push(game);
+        io.to(game.playerA.socketId).emit('moveRes', new Move(nextPlayer, game.playerAboard, game.boardAopponent, winner));
+        io.to(game.playerB.socketId).emit('moveRes', new Move(nextPlayer, game.playerBboard, game.boardBopponent, winner));
+        // console.log(game.boardAopponent);
+        // console.log(game.boardBopponent);
     });
 
 
@@ -106,12 +120,20 @@ io.on('connection', function (socket) {
     });
 
     socket.on('reconnect', function (player) {
+        console.log(player);
         // for(let i = 0; i < games.length; i++){
-        //     if(game[i].gameId === player.gameId){
-        //
+        //     if(games[i].gameId === player.gameId){
+        //         if(games[i].playerA.userId === player.userID){
+        //             games[i].playerA.socketId = socket.id;
+        //             io.to(socket.id).emit('reconnectRec', new Move(games[i].playerA.userId, games[i].playerAboard, games[i].boardAopponent));
+        //         } else {
+        //             games[i].playerB.socketId = socket.id;
+        //             io.to(socket.id).emit('reconnectRec', new Move(games[i].playerB.userId, games[i].playerBboard, games[i].boardBopponent));
+        //         }
         //     }
         // }
     });
+
 });
 
 
@@ -139,9 +161,9 @@ function getGame(gameId) {
 
 function setInitialConfiguration(game, board) {
     const newBoard = new Board(board.playerId, board.boardCells, board.totalShipCells, board.shipList);
-
     if(game.playerA.userId === board.playerId){
         game.playerAboard = newBoard
+
     } else { game.playerBboard = newBoard}
 }
 
@@ -150,3 +172,5 @@ function updateSocketId(game, userId, socketId){
         game.playerA.socketId = socketId
     } else {game.playerB.socketId = socketId}
 }
+
+

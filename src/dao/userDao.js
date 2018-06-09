@@ -63,6 +63,10 @@ function deleteUser(id) {
     });
 }
 
+function updateUser(id) {
+
+}
+
 
 function createId(facebookId) {
     const ID = '1b671a64-40d5-491e-99b0-da01ff1f3341';

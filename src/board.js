@@ -15,9 +15,6 @@ class Board {
         return uuid();
     }
 
-    shoot(){
-
-    }
 
 }
 

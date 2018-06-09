@@ -1,10 +1,10 @@
 class Move{
 
-    constructor(turn, myBoard, boardOpponent) {
+    constructor(turn, myBoard, boardOpponent, winner) {
         this.turn = turn;
         this.myBoard = myBoard;
         this.boardOpponent = boardOpponent;
-        this.winner = undefined;
+        this.winner = winner;
     }
 }
 

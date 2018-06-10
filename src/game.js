@@ -63,7 +63,7 @@ class Game {
     }
 
     setShot(myboard, row, column, isShip) {
-        myboard.cells[row][column].shot.hit = isShip;
+        myboard.cells[row][column].shot.hit = true;
         if (isShip) {
             myboard.totalShipsCells -= 1;
             // const id = row + ',' + column;
@@ -72,13 +72,13 @@ class Game {
     }
 
     setShotShip(ships, id) {
-        // for (let i = 0; i < ships.length; i++) {
-        //     for (let j = 0; j < ships.cells.length; j++) {
-        //         if(ships[i].cells[j].id === id){
-        //             ships[i].cells[j].
-        //         }
-        //     }
-        // }
+        for (let i = 0; i < ships.length; i++) {
+            for (let j = 0; j < ships.cells.length; j++) {
+                if(ships[i].cells[j].id === id){
+                    ships[i].cells[j].shot += 1;
+                }
+            }
+        }
     }
 
     winner() {

@@ -45,7 +45,8 @@ io.on('connection', function (socket) {
             console.log('First Player');
             players.push({
                 socketId: socket.id,
-                userId: playerId
+                userId: playerId,
+                // facebookId: playerId.
             });
             io.to(socket.id).emit('game', 'Waiting for another player');
         } else {
@@ -109,7 +110,9 @@ io.on('connection', function (socket) {
     });
 
 
-    // socket.emit('moveRes')
+    socket.on('abandon', function (player) {
+       console.log(player);
+    });
 
     socket.on('disconnect', function (socket) {
         for (let i = 0; i < users.length; i++) {

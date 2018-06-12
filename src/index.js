@@ -1,5 +1,5 @@
 const Game = require('./game.js');
-const Board = require('./board.js');
+const Board = require('./board');
 const Move = require('./move.js');
 const app = require('express')();
 const http = require('http').Server(app);

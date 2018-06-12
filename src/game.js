@@ -1,5 +1,4 @@
 const uuid = require("uuid/v4");
-const Board = require('./Board.js');
 const Cell = require('./cell.js');
 
 class Game {

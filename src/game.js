@@ -62,7 +62,7 @@ class Game {
     }
 
     setShot(myboard, row, column, isShip) {
-        myboard.cells[row][column].shot.hit = true;
+        myboard.cells[row][column].shot.hit = isShip;
         if (isShip) {
             myboard.totalShipsCells -= 1;
             const id = row + ',' + column;

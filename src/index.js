@@ -1,5 +1,5 @@
 const Game = require('./game.js');
-const Board = require('./board');
+const Board = require('./board.js');
 const Move = require('./move.js');
 const app = require('express')();
 const http = require('http').Server(app);
@@ -8,7 +8,7 @@ const dao = require('./dao/userDao.js');
 
 const port = 3000;
 const users = [];
-const players = [];
+var players = [];
 const games = [];
 
 app.get('/', function (req, res) {
@@ -19,7 +19,7 @@ io.on('connection', function (socket) {
     console.log('user connected: ' + socket.id);
 
     socket.on('login', function (msg) {
-        console.log(msg);
+        console.log('length login1: ' + users.length);
         dao.getUser(msg, function (res) {
             if (isEmpty(res)) {
                 dao.newUser(msg, function (newUser) {
@@ -29,12 +29,14 @@ io.on('connection', function (socket) {
                     });
                     io.to(socket.id).emit('user', res.Item);
                 });
+                console.log('length login2: ' + users.length);
             } else {
                 users.push({
                     socketId: socket.id,
                     userId: res.Item.id
                 });
                 io.to(socket.id).emit('user', res.Item);
+                console.log('length login3: ' + users.length);
             }
         });
     });
@@ -114,6 +116,16 @@ io.on('connection', function (socket) {
        console.log(player);
     });
 
+    socket.on('logout', function (player) {
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].userId === player.playerId) {
+                console.log('logout');
+                users.splice(i, 1);
+            }
+        }
+        console.log('length logout: ' + users.length);
+    });
+
     socket.on('disconnect', function (socket) {
         for (let i = 0; i < users.length; i++) {
             if (users[i].id === socket.id) {
@@ -121,6 +133,8 @@ io.on('connection', function (socket) {
             }
         }
     });
+
+
 
     socket.on('reconnect', function (player) {
         console.log(player);

@@ -18,37 +18,40 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
     console.log('user connected: ' + socket.id);
 
-    socket.on('login', function (msg) {
-        console.log('length login1: ' + users.length);
-        dao.getUser(msg, function (res) {
+    socket.on('login', function (facebookId) {
+        console.log(facebookId);
+        dao.getUser(facebookId, function (res) {
             if (isEmpty(res)) {
-                dao.newUser(msg, function (newUser) {
+                dao.newUser(facebookId, function (newUser) {
+                    console.log(newUser);
                     users.push({
                         socketId: socket.id,
-                        userId: newUser.id
+                        userId: newUser.id,
+                        facebookId: facebookId
                     });
-                    io.to(socket.id).emit('user', res.Item);
+                    console.log('length login2: ' + users.length);
+                    io.to(socket.id).emit('user', newUser);
                 });
-                console.log('length login2: ' + users.length);
             } else {
                 users.push({
                     socketId: socket.id,
-                    userId: res.Item.id
+                    userId: res.Item.id,
+                    facebookId: facebookId
                 });
                 io.to(socket.id).emit('user', res.Item);
-                console.log('length login3: ' + users.length);
             }
         });
     });
 
 
-    socket.on('play', function (playerId) {
+    socket.on('play', function (user) {
+        console.log(user);
         if (players.length === 0) {
             console.log('First Player');
             players.push({
                 socketId: socket.id,
-                userId: playerId,
-                // facebookId: playerId.
+                userId: user.playerId,
+                facebookId: user.facebookId
             });
             io.to(socket.id).emit('game', 'Waiting for another player');
         } else {
@@ -56,7 +59,8 @@ io.on('connection', function (socket) {
             let playerA = players.pop();
             let playerB = {
                 socketId: socket.id,
-                userId: playerId
+                userId: user.playerId,
+                facebookId: user.facebookId
             };
             let game = new Game(playerA, playerB);
             games.push(game);
@@ -90,6 +94,7 @@ io.on('connection', function (socket) {
 
 
     socket.on('move', function (move) {
+        console.log('move');
         const game = getGame(move.gameId);
         game.shot(move.row, move.column, move.userID);
 
@@ -107,8 +112,6 @@ io.on('connection', function (socket) {
         games.push(game);
         io.to(game.playerA.socketId).emit('moveRes', new Move(nextPlayer, game.playerAboard, game.boardAopponent, winner));
         io.to(game.playerB.socketId).emit('moveRes', new Move(nextPlayer, game.playerBboard, game.boardBopponent, winner));
-        // console.log(game.boardAopponent);
-        // console.log(game.boardBopponent);
     });
 
 
@@ -137,7 +140,7 @@ io.on('connection', function (socket) {
 
 
     socket.on('reconnect', function (player) {
-        console.log(player);
+        console.log('Reconectando....');
         // for(let i = 0; i < games.length; i++){
         //     if(games[i].gameId === player.gameId){
         //         if(games[i].playerA.userId === player.userID){

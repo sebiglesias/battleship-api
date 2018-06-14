@@ -4,6 +4,7 @@ const gameTable = 'battleship-games';
 
 function saveGame(winner, loser) {
     const id = createId();
+    const  date = new Date();
     const game = {
         TableName: gameTable,
         Key: {
@@ -13,7 +14,7 @@ function saveGame(winner, loser) {
             'id': id,
             'winner': winner,
             'loser': loser,
-            'totalShoots': 0,
+            'date': date.getTime(),
             'hits': 0,
             'games': []
         }
@@ -25,5 +26,7 @@ function saveGame(winner, loser) {
 function createId() {
     return uuid();
 }
+
+
 
 module.exports.postGame = saveGame();

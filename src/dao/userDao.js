@@ -39,7 +39,6 @@ function newUser(id, callback) {
             console.log('Error to create user');
         } else {
             console.log('User created');
-            console.log(newUser.Item);
             callback(newUser.Item);
         }
     });

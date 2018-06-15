@@ -6,7 +6,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const dao = require('./dao/userDao.js');
 
-const port = 3000;
+const port = 8080;
 const users = [];
 var players = [];
 const games = [];

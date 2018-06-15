@@ -74,7 +74,7 @@ class Game {
     setShotShip(ships, id) {
         for (let i = 0; i < ships.length; i++) {
             for (let j = 0; j < ships[i].cells.length; j++) {
-                if(ships[i].cells[j].id === id){
+                if (ships[i].cells[j].id === id) {
                     ships[i].shot += 1;
                 }
             }
@@ -87,6 +87,10 @@ class Game {
         } else if (this.playerBboard.totalShipsCells === 0) {
             return this.playerA.userId;
         } else return undefined;
+    }
+
+    finish(winnerId) {
+
     }
 
     toString() {

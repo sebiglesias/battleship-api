@@ -18,6 +18,7 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
     console.log('user connected: ' + socket.id);
 
+
     socket.on('login', function (facebookId) {
         console.log(facebookId);
         dao.getUser(facebookId, function (res) {
@@ -51,7 +52,9 @@ io.on('connection', function (socket) {
             players.push({
                 socketId: socket.id,
                 userId: user.playerId,
-                facebookId: user.facebookId
+                facebookId: user.facebookId,
+                photo: user.photo,
+                name: user.name
             });
             io.to(socket.id).emit('game', 'Waiting for another player');
         } else {
@@ -60,7 +63,9 @@ io.on('connection', function (socket) {
             let playerB = {
                 socketId: socket.id,
                 userId: user.playerId,
-                facebookId: user.facebookId
+                facebookId: user.facebookId,
+                photo: user.photo,
+                name: user.name
             };
             let game = new Game(playerA, playerB);
             games.push(game);
@@ -136,22 +141,33 @@ io.on('connection', function (socket) {
             }
         }
     });
+    
 
-
-
-    socket.on('reconnect', function (player) {
-        console.log('Reconectando....');
-        // for(let i = 0; i < games.length; i++){
-        //     if(games[i].gameId === player.gameId){
-        //         if(games[i].playerA.userId === player.userID){
-        //             games[i].playerA.socketId = socket.id;
-        //             io.to(socket.id).emit('reconnectRec', new Move(games[i].playerA.userId, games[i].playerAboard, games[i].boardAopponent));
-        //         } else {
-        //             games[i].playerB.socketId = socket.id;
-        //             io.to(socket.id).emit('reconnectRec', new Move(games[i].playerB.userId, games[i].playerBboard, games[i].boardBopponent));
-        //         }
-        //     }
-        // }
+    socket.on('reconnection', function (player) {
+        if(player.hasOwnProperty('gameId')){
+            for(let i = 0; i < games.length; i++){
+                if(games[i].gameId === player.gameId){
+                    if(games[i].playerA.userId === player.userID){
+                        games[i].playerA.socketId = socket.id;
+                        io.to(socket.id).emit('reconnectRec', new Move(games[i].playerA.userId, games[i].playerAboard, games[i].boardAopponent));
+                    } else {
+                        games[i].playerB.socketId = socket.id;
+                        io.to(socket.id).emit('reconnectRec', new Move(games[i].playerB.userId, games[i].playerBboard, games[i].boardBopponent));
+                    }
+                }
+            }
+        }else{
+            console.log('Reconectando solo user....');
+            if(!exist(users, player.userID)){
+                users.push({
+                    socketId: socket.id,
+                    userId: player.userID
+                    // facebookId: player.facebookId
+                });
+            }
+            console.log(users.length);
+            console.log(users);
+        }
     });
 
 });
@@ -169,6 +185,17 @@ function isEmpty(obj) {
     }
 
     return JSON.stringify(obj) === JSON.stringify({});
+}
+
+function exist(array, id) {
+    let result = false;
+    for (let i = 0; i < users.length; i++) {
+        if(users[i].userId === id){
+            result = true;
+            break;
+        }
+    }
+    return result;
 }
 
 function getGame(gameId) {

@@ -15,6 +15,8 @@ class Game {
 
         this.boardAopponent = this.createEmptyBoard();
         this.boardBopponent = this.createEmptyBoard();
+
+        this.nextTurn = undefined;
     }
 
 

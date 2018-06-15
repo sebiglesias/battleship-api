@@ -115,8 +115,8 @@ io.on('connection', function (socket) {
         } else {
             games.push(game);
         }
-        io.to(game.playerA.socketId).emit('moveRes', new Move(game.nextTurn, game.playerAboard, game.boardAopponent, winner));
-        io.to(game.playerB.socketId).emit('moveRes', new Move(game.nextTurn, game.playerBboard, game.boardBopponent, winner));
+        io.to(game.playerA.socketId).emit('moveRes', new Move(game.nextTurn, game.playerAboard, game.boardAopponent, game.shipsAopponent, winner));
+        io.to(game.playerB.socketId).emit('moveRes', new Move(game.nextTurn, game.playerBboard, game.boardBopponent, game.shipsBopponent, winner));
     });
 
 
@@ -126,10 +126,10 @@ io.on('connection', function (socket) {
         pushUsers(game);
         if (player.playerId === game.playerA.userId) {
             game.finish(game.playerB.userId);
-            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.socketId, game.playerBboard, game.boardBopponent, 'abandon'));
+            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.socketId, game.playerBboard, game.boardBopponent, game.shipsAopponent, 'abandon'));
         } else {
             game.finish(game.playerA.userId);
-            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.socketId, game.playerBboard, game.boardBopponent, 'abandon'));
+            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.socketId, game.playerBboard, game.boardBopponent, game.shipsBopponent, 'abandon'));
         }
         console.log('-------------------');
     });
@@ -160,10 +160,10 @@ io.on('connection', function (socket) {
                 if (games[i].gameId === player.gameId) {
                     if (games[i].playerA.userId === player.userID) {
                         games[i].playerA.socketId = socket.id;
-                        io.to(socket.id).emit('moveRes', new Move(games[i].nextTurn, games[i].playerAboard, games[i].boardAopponent));
+                        io.to(socket.id).emit('moveRes', new Move(games[i].nextTurn, games[i].playerAboard, games[i].boardAopponent, games[i].shipsAopponent));
                     } else {
                         games[i].playerB.socketId = socket.id;
-                        io.to(socket.id).emit('moveRes', new Move(games[i].nextTurn, games[i].playerBboard, games[i].boardBopponent));
+                        io.to(socket.id).emit('moveRes', new Move(games[i].nextTurn, games[i].playerBboard, games[i].boardBopponent, games[i].shipsBopponent));
                     }
                 }
             }

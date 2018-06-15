@@ -1,5 +1,8 @@
 const uuid = require("uuid/v4");
 const Cell = require('./cell.js');
+const Statistics = require('./statistics.js');
+const gameDao = require('./dao/gameDao.js');
+const userDao = require('./dao/userDao.js');
 
 class Game {
 
@@ -15,6 +18,12 @@ class Game {
 
         this.boardAopponent = this.createEmptyBoard();
         this.boardBopponent = this.createEmptyBoard();
+
+        this.shipsAopponent = [];
+        this.shipsBopponent = [];
+
+        this.statisticsA = new Statistics(0, 0, 0);
+        this.statisticsB = new Statistics(0, 0, 0);
 
         this.nextTurn = undefined;
     }
@@ -43,14 +52,14 @@ class Game {
             const isShip = this.check(this.playerBboard, row, column);
             console.log('isShip: ' + isShip);
             this.setShotOpponent(this.boardAopponent, row, column, isShip);
-            this.setShot(this.playerBboard, row, column, isShip);
+            this.setShot(this.playerBboard, row, column, isShip, this.shipsAopponent);
         } else {
             console.log('playerB:' + this.playerB.userId);
             console.log('playerB:' + player);
             const isShip = this.check(this.playerAboard, row, column);
             console.log('isShip: ' + isShip);
             this.setShotOpponent(this.boardBopponent, row, column, isShip);
-            this.setShot(this.playerAboard, row, column, isShip);
+            this.setShot(this.playerAboard, row, column, isShip, this.shipsBopponent);
         }
     }
 
@@ -63,21 +72,23 @@ class Game {
         boardOpponent[row][column].occupied = isShip;
     }
 
-    setShot(myboard, row, column, isShip) {
+    setShot(myboard, row, column, isShip, shipsOpponent) {
         myboard.cells[row][column].shot.hit = isShip;
         if (isShip) {
-            console.log('resta 1');
             myboard.totalShipsCells = myboard.totalShipsCells - 1;
             const id = row + ',' + column;
-            this.setShotShip(myboard.ships, id)
+            this.setShotShip(myboard.ships, id, shipsOpponent)
         }
     }
 
-    setShotShip(ships, id) {
+    setShotShip(ships, id, shipsOpponent) {
         for (let i = 0; i < ships.length; i++) {
             for (let j = 0; j < ships[i].cells.length; j++) {
                 if (ships[i].cells[j].id === id) {
                     ships[i].shot += 1;
+                    if(ships[i].shot === ships[i].size){
+                        shipsOpponent.push(ships[i])
+                    }
                 }
             }
         }
@@ -92,8 +103,20 @@ class Game {
     }
 
     finish(winnerId) {
-
+        console.log('winnerid: ' + winnerId);
+        if (this.playerB.userId === winnerId) {
+            gameDao.saveGame(winnerId, this.playerA.userId, 0, 0, (res) => {
+                userDao.updateUser(this.playerB.userId, 1, 0, this.statisticsB.shots, this.statisticsB.hits, res.id);
+                userDao.updateUser(this.playerA.userId, 0, 1, this.statisticsA.shots, this.statisticsA.hits, res.id);
+            });
+        } else {
+            gameDao.saveGame(winnerId, this.playerB.userId, 0, 0, (res) => {
+                userDao.updateUser(this.playerB.userId, 0, 1, this.statisticsB.shots, this.statisticsB.hits, res.id);
+                userDao.updateUser(this.playerA.userId, 1, 0, this.statisticsA.shots, this.statisticsA.hits, res.id);
+            });
+        }
     }
+
 
     toString() {
         return {

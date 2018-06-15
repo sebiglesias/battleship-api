@@ -2,7 +2,7 @@ const dao = require('./dao.js');
 const uuid = require("uuid/v4");
 const gameTable = 'battleship-games';
 
-function saveGame(winner, loser) {
+function saveGame(winner, loser, statisticsA, statisticsB, callback) {
     const id = createId();
     const  date = new Date();
     const game = {
@@ -14,13 +14,20 @@ function saveGame(winner, loser) {
             'id': id,
             'winner': winner,
             'loser': loser,
+            'statisticsA': statisticsA,
+            'statisticsB': statisticsB,
             'date': date.getTime(),
-            'hits': 0,
-            'games': []
         }
     };
 
-    return id;
+    dao.post(game, function (err, data) {
+        if (err) {
+            console.log('Error to save game');
+        } else {
+            console.log('Game saved.');
+            callback(game.Item);
+        }
+    });
 }
 
 function createId() {
@@ -29,4 +36,4 @@ function createId() {
 
 
 
-module.exports.postGame = saveGame();
+module.exports.saveGame = saveGame;

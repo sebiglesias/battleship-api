@@ -18,14 +18,20 @@ class Dao {
 
 
     post(params, callback) {
-        // Put the new Article in the database
         docClient.put(params, function (err, data) {
                 callback(err, data);
         });
     };
 
     put(params, callback){
-
+        docClient.update(params, function (err, data) {
+            if (err) {
+                console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+            } else {
+                console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+                callback(null, data);
+            }
+        });
     }
 
     delete(params, callback) {

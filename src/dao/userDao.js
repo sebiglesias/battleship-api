@@ -51,18 +51,36 @@ function deleteUser(id) {
             "id": createId(id)
         }
     };
-
     // Put the new Article in the database
-    docClient.delete(user, function (err, data) {
+    dao.delete(user, function (err, data) {
         if (err) {
             console.log('Error to delte user');
         } else {
-            console.log('User deleted');
+            callback(null, data);
         }
     });
 }
 
-function updateUser(id) {
+function updateUser(id, win, lost, shots, hits, gameId) {
+    const user = {
+        TableName: userTable,
+        Key: {
+            "id": id
+        },
+        UpdateExpression: "set win = win + :w, lost = lost + :l, hits = hits + :h, totalShoots = totalShoots + :ts, games = list_append(games, :g)",
+        ExpressionAttributeValues: {
+            ":w": win,
+            ":l": lost,
+            ":h": hits,
+            ":ts": shots,
+            ":g": [gameId]
+        },
+        ReturnValues: "UPDATED_NEW"
+    };
+
+    dao.put(user, (err, data) => {
+        console.log(data);
+    })
 
 }
 
@@ -74,3 +92,4 @@ function createId(facebookId) {
 
 module.exports.getUser = getUser;
 module.exports.newUser = newUser;
+module.exports.updateUser = updateUser;

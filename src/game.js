@@ -49,17 +49,19 @@ class Game {
     shot(row, column, player) {
         if (player === this.playerA.userId) {
             console.log('playerA');
+            this.statisticsA.shots += 1;
             const isShip = this.check(this.playerBboard, row, column);
             console.log('isShip: ' + isShip);
             this.setShotOpponent(this.boardAopponent, row, column, isShip);
-            this.setShot(this.playerBboard, row, column, isShip, this.shipsAopponent);
+            this.setShot(this.playerBboard, row, column, isShip, this.shipsAopponent, this.statisticsA);
         } else {
             console.log('playerB:' + this.playerB.userId);
+            this.statisticsB.shots += 1;
             console.log('playerB:' + player);
             const isShip = this.check(this.playerAboard, row, column);
             console.log('isShip: ' + isShip);
             this.setShotOpponent(this.boardBopponent, row, column, isShip);
-            this.setShot(this.playerAboard, row, column, isShip, this.shipsBopponent);
+            this.setShot(this.playerAboard, row, column, isShip, this.shipsBopponent, this.statisticsB);
         }
     }
 
@@ -72,13 +74,16 @@ class Game {
         boardOpponent[row][column].occupied = isShip;
     }
 
-    setShot(myboard, row, column, isShip, shipsOpponent) {
-        myboard.cells[row][column].shot.hit = isShip;
-        if (isShip) {
+    setShot(myboard, row, column, isShip, shipsOpponent, statistics) {
+        if (isShip && myboard.cells[row][column].shot.hit !== true) {
             myboard.totalShipsCells = myboard.totalShipsCells - 1;
+            statistics.hits += 1;
             const id = row + ',' + column;
             this.setShotShip(myboard.ships, id, shipsOpponent)
+        } else {
+            statistics.misses += 1;
         }
+        myboard.cells[row][column].shot.hit = isShip;
     }
 
     setShotShip(ships, id, shipsOpponent) {
@@ -103,14 +108,19 @@ class Game {
     }
 
     finish(winnerId) {
+        console.log('-----------------------');
+        console.log(this.statisticsA);
+        console.log('-----------------------');
+        console.log(this.statisticsB);
+        console.log('-----------------------');
         console.log('winnerid: ' + winnerId);
         if (this.playerB.userId === winnerId) {
-            gameDao.saveGame(winnerId, this.playerA.userId, 0, 0, (res) => {
+            gameDao.saveGame(winnerId, this.playerA.userId, this.statisticsA, this.statisticsB, (res) => {
                 userDao.updateUser(this.playerB.userId, 1, 0, this.statisticsB.shots, this.statisticsB.hits, res.id);
                 userDao.updateUser(this.playerA.userId, 0, 1, this.statisticsA.shots, this.statisticsA.hits, res.id);
             });
         } else {
-            gameDao.saveGame(winnerId, this.playerB.userId, 0, 0, (res) => {
+            gameDao.saveGame(winnerId, this.playerB.userId, this.statisticsA, this.statisticsB, (res) => {
                 userDao.updateUser(this.playerB.userId, 0, 1, this.statisticsB.shots, this.statisticsB.hits, res.id);
                 userDao.updateUser(this.playerA.userId, 1, 0, this.statisticsA.shots, this.statisticsA.hits, res.id);
             });

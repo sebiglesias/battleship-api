@@ -12,9 +12,9 @@ const users = [];
 var players = [];
 const games = [];
 
-app.get('/', (req, res) => {
-    res.send('HEY!')
-});
+// app.get('/', (req, res) => {
+//     res.send('HEY!')
+// });
 
     io.on('connection', function (socket) {
         console.log('user connected: ' + socket.id);
@@ -185,6 +185,7 @@ app.get('/', (req, res) => {
 http.listen(port, function () {
     console.log('listening on *:' + port);
 });
+
 
 
 function isEmpty(obj) {

@@ -3,14 +3,9 @@ const Board = require('./board.js');
 const Move = require('./move.js');
 const dao = require('./dao/userDao.js');
 
-// const app = require('express')();
-// const http = require('http').Server(app);
-// const io = require('socket.io')(http);
-
-const express = require('express');
-const app = express();
-var http = require('http');
-
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 const port = 3000;
 const users = [];
@@ -20,13 +15,6 @@ const games = [];
 app.get('/', (req, res) => {
     res.send('HEY!')
 });
-
-
-http = http.createServer(app).listen(3000, 'localhost', function () {
-    var io = require('socket.io')(http);
-
-
-
 
     io.on('connection', function (socket) {
         console.log('user connected: ' + socket.id);
@@ -193,11 +181,10 @@ http = http.createServer(app).listen(3000, 'localhost', function () {
         });
     });
 
-});
 
-// http.listen(port, function () {
-//     console.log('listening on *:' + port);
-// });
+http.listen(port, function () {
+    console.log('listening on *:' + port);
+});
 
 
 function isEmpty(obj) {

@@ -17,8 +17,15 @@ const users = [];
 var players = [];
 const games = [];
 
-http = http.createServer(app).listen(3000, '52.14.84.4', function () {
+app.get('/', (req, res) => {
+    res.send('HEY!')
+});
+
+
+http = http.createServer(app).listen(3000, 'localhost', function () {
     var io = require('socket.io')(http);
+
+
 
 
     io.on('connection', function (socket) {

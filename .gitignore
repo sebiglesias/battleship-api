@@ -4,4 +4,3 @@ package-lock.json
 battleship-api.iml
 /node_modules
 /.idea
-src/index.html

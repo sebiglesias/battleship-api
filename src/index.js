@@ -12,13 +12,16 @@ const users = [];
 var players = [];
 const games = [];
 
-// app.get('/', (req, res) => {
-//     res.send('HEY!')
-// });
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/index.html');
+});
 
     io.on('connection', function (socket) {
         console.log('user connected: ' + socket.id);
 
+        socket.on('login2', function (res) {
+           socket.emit('user2', 'juan')
+        });
 
         socket.on('login', function (facebookId) {
             console.log(facebookId);

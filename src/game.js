@@ -47,14 +47,14 @@ class Game {
     }
 
     shot(row, column, player) {
-        if (player === this.playerA.userId) {
+        if (player === this.playerA.userId && !this.boardAopponent[row][column].shooted) {
             console.log('playerA');
             this.statisticsA.shots += 1;
             const isShip = this.check(this.playerBboard, row, column);
             console.log('isShip: ' + isShip);
             this.setShotOpponent(this.boardAopponent, row, column, isShip);
             this.setShot(this.playerBboard, row, column, isShip, this.shipsAopponent, this.statisticsA);
-        } else {
+        } else if(player === this.playerB.userId && !this.boardBopponent[row][column].shooted) {
             console.log('playerB:' + this.playerB.userId);
             this.statisticsB.shots += 1;
             console.log('playerB:' + player);
@@ -76,6 +76,7 @@ class Game {
 
     setShot(myboard, row, column, isShip, shipsOpponent, statistics) {
         if (isShip && myboard.cells[row][column].shot.hit !== true) {
+            console.log('resta 1');
             myboard.totalShipsCells = myboard.totalShipsCells - 1;
             statistics.hits += 1;
             const id = row + ',' + column;

@@ -12,29 +12,19 @@ const users = [];
 var players = [];
 const games = [];
 
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
-});
 
     io.on('connection', function (socket) {
         console.log('user connected: ' + socket.id);
 
-        socket.on('login2', function (res) {
-           socket.emit('user2', 'juan')
-        });
-
         socket.on('login', function (facebookId) {
-            console.log(facebookId);
             dao.getUser(facebookId, function (res) {
                 if (isEmpty(res)) {
                     dao.newUser(facebookId, function (newUser) {
-                        console.log(newUser);
                         users.push({
                             socketId: socket.id,
                             userId: newUser.id,
                             facebookId: facebookId
                         });
-                        console.log('length login2: ' + users.length);
                         io.to(socket.id).emit('user', newUser);
                     });
                 } else {
@@ -51,7 +41,6 @@ app.get('/', function(req, res){
 
         socket.on('play', function (user) {
             if (players.length === 0) {
-                console.log('First Player');
                 players.push({
                     socketId: socket.id,
                     userId: user.playerId,
@@ -61,7 +50,6 @@ app.get('/', function(req, res){
                 });
                 io.to(socket.id).emit('game', 'Waiting for another player');
             } else {
-                console.log('Other Player');
                 let playerA = players.pop();
                 let playerB = {
                     socketId: socket.id,
@@ -88,7 +76,6 @@ app.get('/', function(req, res){
         });
 
         socket.on('startGame', function (boards) {
-            console.log('llegue startgame');
             const game = getGame(boards.gameId);
             setInitialConfiguration(game, boards);
             if (game.playerAboard === undefined || game.playerBboard === undefined) {
@@ -105,15 +92,12 @@ app.get('/', function(req, res){
             console.log('move');
             const game = getGame(move.gameId);
             game.shot(move.row, move.column, move.userID);
-
             if (move.userID === game.playerA.userId) {
                 game.nextTurn = game.playerB.userId;
             } else {
                 game.nextTurn = game.playerA.userId;
             }
-
             const winner = game.winner();
-
             if (winner !== undefined) {
                 game.finish(winner);
             } else {
@@ -125,7 +109,6 @@ app.get('/', function(req, res){
 
 
         socket.on('abandon', function (player) {
-            console.log('-------------------');
             const game = getGame(player.gameId);
             pushUsers(game);
             if (player.playerId === game.playerA.userId) {
@@ -135,17 +118,14 @@ app.get('/', function(req, res){
                 game.finish(game.playerA.userId);
                 io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.socketId, game.playerBboard, game.boardBopponent, game.shipsBopponent, 'abandon'));
             }
-            console.log('-------------------');
         });
 
         socket.on('logout', function (player) {
             for (let i = 0; i < users.length; i++) {
                 if (users[i].userId === player.playerId) {
-                    console.log('logout');
                     users.splice(i, 1);
                 }
             }
-            console.log('length logout: ' + users.length);
         });
 
         socket.on('disconnect', function (socket) {
@@ -159,7 +139,6 @@ app.get('/', function(req, res){
 
         socket.on('reconnection', function (player) {
             if (player.hasOwnProperty('gameId')) {
-                console.log('reconectando game...');
                 for (let i = 0; i < games.length; i++) {
                     if (games[i].gameId === player.gameId) {
                         if (games[i].playerA.userId === player.userID) {
@@ -172,7 +151,6 @@ app.get('/', function(req, res){
                     }
                 }
             } else {
-                console.log('Reconectando solo user....');
                 if (!exist(users, player.userID)) {
                     users.push({
                         socketId: socket.id,

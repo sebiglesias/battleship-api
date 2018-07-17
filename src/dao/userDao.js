@@ -51,7 +51,6 @@ function deleteUser(id) {
             "id": createId(id)
         }
     };
-    // Put the new Article in the database
     dao.delete(user, function (err, data) {
         if (err) {
             console.log('Error to delte user');

@@ -26,6 +26,8 @@ class Game {
         this.statisticsB = new Statistics(0, 0, 0);
 
         this.nextTurn = undefined;
+
+        this.timer = new Date();
     }
 
 

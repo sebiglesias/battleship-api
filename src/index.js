@@ -111,14 +111,18 @@ io.on('connection', function (socket) {
 
 
     socket.on('abandon', function (player) {
-        const game = getGame(player.gameId);
-        pushUsers(game);
-        if (player.playerId === game.playerA.userId) {
-            game.finish(game.playerB.userId);
-            io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.socketId, game.playerBboard, game.boardBopponent, game.shipsAopponent, 'abandon'));
-        } else {
-            game.finish(game.playerA.userId);
-            io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.socketId, game.playerBboard, game.boardBopponent, game.shipsBopponent, 'abandon'));
+        console.log('gameId: ' + player.gameId);
+        console.log(player.playerId);
+        if (player.gameId !== undefined) {
+            const game = getGame(player.gameId);
+            pushUsers(game);
+            if (player.playerId === game.playerA.userId) {
+                game.finish(game.playerB.userId);
+                io.to(game.playerB.socketId).emit('moveRes', new Move(game.playerB.socketId, game.playerBboard, game.boardBopponent, game.shipsAopponent, 'abandon'));
+            } else {
+                game.finish(game.playerA.userId);
+                io.to(game.playerA.socketId).emit('moveRes', new Move(game.playerA.socketId, game.playerBboard, game.boardBopponent, game.shipsBopponent, 'abandon'));
+            }
         }
     });
 
@@ -181,16 +185,21 @@ function checkPlayersLife() {
         let gameTime = games[i].timer;
         let millis = Math.abs(currentTime - gameTime);
         let seconds = ((millis % 60000) / 1000).toFixed(0);
-        if (seconds > 20) {
+        console.log(seconds);
+        if (seconds > 25) {
             let game = getGame(id);
+            pushUsers(game);
             if (game.playerAboard === undefined && game.playerBboard === undefined) {
+                console.log('perdieron ambos');
                 io.to(game.playerA.socketId).emit('timeout', new Move(game.playerA.socketId, game.playerAboard, game.boardAopponent, game.shipsAopponent, 'abandon'));
                 io.to(game.playerB.socketId).emit('timeout', new Move(game.playerB.socketId, game.playerBboard, game.boardBopponent, game.shipsBopponent, 'abandon'));
-            } else if (game.nextTurn === game.playerA.userId  || game.playerAboard === undefined) {
+            } else if (game.nextTurn === game.playerA.userId || game.playerAboard === undefined) {
                 console.log("playerA out:" + game.playerA.userId);
+                game.finish(game.playerB.userId);
                 timeoutRes(game, game.playerA, game.playerB);
             } else if (game.nextTurn === game.playerB.userId || game.playerBboard === undefined) {
                 console.log("playerA out:" + game.playerB.userId);
+                game.finish(game.playerA.userId);
                 timeoutRes(game, game.playerB, game.playerA);
             }
         }

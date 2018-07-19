@@ -40,6 +40,7 @@ io.on('connection', function (socket) {
 
 
     socket.on('play', function (user) {
+        console.log(user.playerId);
         if (players.length === 0) {
             players.push({
                 socketId: socket.id,
@@ -48,8 +49,10 @@ io.on('connection', function (socket) {
                 photo: user.photo,
                 name: user.name
             });
+            console.log('user1');
             io.to(socket.id).emit('game', 'Waiting for another player');
         } else {
+            console.log('user2');
             let playerA = players.pop();
             let playerB = {
                 socketId: socket.id,
@@ -112,7 +115,6 @@ io.on('connection', function (socket) {
 
     socket.on('abandon', function (player) {
         console.log('gameId: ' + player.gameId);
-        console.log(player.playerId);
         if (player.gameId !== undefined) {
             const game = getGame(player.gameId);
             pushUsers(game);
@@ -251,6 +253,8 @@ function setInitialConfiguration(game, board) {
 }
 
 function pushUsers(game) {
+    console.log(game.playerA.userId);
+    console.log(game.playerB.userId);
     users.push({
         socketId: game.playerA.socketId,
         userId: game.playerA.userId,
